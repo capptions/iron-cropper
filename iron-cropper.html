@@ -12,7 +12,7 @@ Polymer 1.0 element that wraps around Cropper.js
 
 <dom-module id="iron-cropper">
   <template>
-    <style id="style">
+    <style>
       :host {
         display: block;
         max-height: 469px;
@@ -21,7 +21,7 @@ Polymer 1.0 element that wraps around Cropper.js
         max-width: 100%;
       }
     </style>
-    <iron-ajax auto url="../cropperjs/dist/cropper.min.css" handle-as="text" on-response="_setCSS"></iron-ajax>
+    <iron-ajax css auto url="../cropperjs/dist/cropper.min.css" handle-as="text" on-response="_setCSS"></iron-ajax>
     <div>
       <img id="image" src="[[src]]">
     </div>
@@ -81,9 +81,12 @@ Polymer 1.0 element that wraps around Cropper.js
 
         var style = document.createElement('style');
         style.innerHTML = css;
-        Polymer.dom(this.root).insertBefore(style, this.$.style);
+        Polymer.dom(this.root).insertBefore(style, this.$$('style'));
 
-        this._cssReady = true;
+        this._cssReadyCount = this._cssReadyCount || 0;
+        this._cssReadyCount += 1;
+        this._cssAjax = this._cssAjax || Polymer.dom(this.root).querySelectorAll('iron-ajax[css]');
+        this._cssReady = this._cssReadyCount === this._cssAjax.length;
 
         if (this._renderWhenReady) {
           delete this._renderWhenReady;
