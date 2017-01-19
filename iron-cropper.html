@@ -61,6 +61,11 @@ Polymer 1.0 element that wraps around Cropper.js
         if (!window.Cropper) {
           return console.error('Cropper has not been initialized');
         }
+        
+        if (this._cropper) {
+          this._cropper.destroy();
+        }
+
 
         this._cropper = new window.Cropper(this.$.image, Object.assign({
           crop: this.crop.bind(this)
