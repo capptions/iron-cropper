@@ -1,7 +1,6 @@
 <script src="../cropperjs/dist/cropper.min.js"></script>
 
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
 
 <!--
 `iron-cropper`
@@ -11,6 +10,8 @@ Polymer 1.0 element that wraps around Cropper.js
 -->
 
 <dom-module id="iron-cropper">
+  <link rel="import" type="css" href="../cropperjs/dist/cropper.min.css">
+
   <template>
     <style>
       :host {
@@ -21,7 +22,6 @@ Polymer 1.0 element that wraps around Cropper.js
         max-width: 100%;
       }
     </style>
-    <iron-ajax css auto url="../cropperjs/dist/cropper.min.css" handle-as="text" on-response="_setCSS"></iron-ajax>
     <div>
       <img id="image" src="[[src]]">
     </div>
@@ -54,49 +54,15 @@ Polymer 1.0 element that wraps around Cropper.js
       },
 
       render: function () {
-        if (!this._cssReady) {
-          return this._renderWhenReady = true;
-        }
-
         if (!window.Cropper) {
           return console.error('Cropper has not been initialized');
         }
-        
+
         if (this._cropper) {
           this._cropper.destroy();
         }
 
-
-        this._cropper = new window.Cropper(this.$.image, Object.assign({
-          crop: this.crop.bind(this)
-        }, this.options));
-      },
-
-      crop: function (e) {
-        e.detail.cropper = this._cropper;
-        this.fire('crop', e.detail);
-      },
-
-      _setCSS: function (e) {
-        var css = e && e.currentTarget && e.currentTarget.lastResponse;
-
-        if (!css) {
-          return;
-        }
-
-        var style = document.createElement('style');
-        style.innerHTML = css;
-        Polymer.dom(this.root).insertBefore(style, this.$$('style'));
-
-        this._cssReadyCount = this._cssReadyCount || 0;
-        this._cssReadyCount += 1;
-        this._cssAjax = this._cssAjax || Polymer.dom(this.root).querySelectorAll('iron-ajax[css]');
-        this._cssReady = this._cssReadyCount === this._cssAjax.length;
-
-        if (this._renderWhenReady) {
-          delete this._renderWhenReady;
-          this.render();
-        }
+        this._cropper = new window.Cropper(this.$.image, Object.assign({}, this.options));
       }
     });
   </script>
