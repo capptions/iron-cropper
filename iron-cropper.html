@@ -14,16 +14,17 @@ Polymer 1.0 element that wraps around Cropper.js
 
   <template>
     <style>
-      :host {
+      #wrapper {
         display: block;
-        max-height: 469px;
       }
       #image {
         max-width: 100%;
       }
     </style>
     <div>
-      <img id="image" src="[[src]]">
+      <div id="wrapper">
+        <img id="image" src="[[src]]" on-load="render">
+      </div>
     </div>
   </template>
 
@@ -38,8 +39,7 @@ Polymer 1.0 element that wraps around Cropper.js
          */
         src: {
           type: String,
-          reflectToAttribute: true,
-          observer: 'render'
+          reflectToAttribute: true
         },
 
         /**
@@ -58,11 +58,28 @@ Polymer 1.0 element that wraps around Cropper.js
           return console.error('Cropper has not been initialized');
         }
 
+        var options = Object.assign({}, this.options);
+        var wrapper = this.$.wrapper;
+
+        options._ready = options.ready;
+        options.ready = function (e) {
+          wrapper.removeAttribute('style');
+          if (options._ready) {
+            return options._ready(e);
+          }
+        };
+
+        wrapper.setAttribute('style', 'max-height: ' + this.$.image.offsetHeight + 'px');
+        this.scopeSubtree(wrapper, true);
+
         if (this._cropper) {
           this._cropper.destroy();
         }
+        else {
+          this.scopeSubtree(wrapper, true);
+        }
 
-        this._cropper = new window.Cropper(this.$.image, Object.assign({}, this.options));
+        this._cropper = new window.Cropper(this.$.image, options);
       }
     });
   </script>
