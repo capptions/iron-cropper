@@ -58,6 +58,10 @@ Polymer 1.0 element that wraps around Cropper.js
           return console.error('Cropper has not been initialized');
         }
 
+        if (this._cropper) {
+          this._cropper.destroy();
+        }
+
         var options = Object.assign({}, this.options);
         var wrapper = this.$.wrapper;
 
@@ -70,12 +74,9 @@ Polymer 1.0 element that wraps around Cropper.js
         };
 
         wrapper.setAttribute('style', 'max-height: ' + this.$.image.offsetHeight + 'px');
-        this.scopeSubtree(wrapper, true);
 
-        if (this._cropper) {
-          this._cropper.destroy();
-        }
-        else {
+        if (!this._scoped) {
+          this._scoped = true;
           this.scopeSubtree(wrapper, true);
         }
 
