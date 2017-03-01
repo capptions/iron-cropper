@@ -1,0 +1,87 @@
+<script src="../cropperjs/dist/cropper.min.js"></script>
+
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`iron-cropper`
+Polymer 1.0 element that wraps around Cropper.js
+
+@demo demo/index.html
+-->
+
+<dom-module id="iron-cropper">
+  <link rel="import" type="css" href="../cropperjs/dist/cropper.min.css">
+
+  <template>
+    <style>
+      #wrapper {
+        display: block;
+      }
+      #image {
+        max-width: 100%;
+      }
+    </style>
+    <div>
+      <div id="wrapper">
+        <img id="image" src="[[src]]" on-load="render">
+      </div>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'iron-cropper',
+
+      properties: {
+        /**
+         * The URL of the image to be cropped
+         */
+        src: {
+          type: String,
+          reflectToAttribute: true
+        },
+
+        /**
+         * The options object as specified in https://github.com/fengyuanchen/cropperjs#options
+         */
+        options: {
+          type: Object,
+          value: function () {
+            return { aspectRatio: 1 }
+          }
+        }
+      },
+
+      render: function () {
+        if (!window.Cropper) {
+          return console.error('Cropper has not been initialized');
+        }
+
+        if (this._cropper) {
+          this._cropper.destroy();
+        }
+
+        var options = Object.assign({}, this.options);
+        var wrapper = this.$.wrapper;
+
+        options._ready = options.ready;
+        options.ready = function (e) {
+          wrapper.removeAttribute('style');
+          if (options._ready) {
+            return options._ready(e);
+          }
+        };
+
+        wrapper.setAttribute('style', 'max-height: ' + this.$.image.offsetHeight + 'px');
+
+        if (!this._scoped) {
+          this._scoped = true;
+          this.scopeSubtree(wrapper, true);
+        }
+
+        this._cropper = new window.Cropper(this.$.image, options);
+      }
+    });
+  </script>
+</dom-module>
